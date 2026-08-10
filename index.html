@@ -213,7 +213,7 @@
 
 <div class="container">
     <header>
-        <h1>🔍 Kontrola Jídelníčku & Dietních Alergii</h1>
+        <h1>🔍 Kontrola Jídelníčku & Dietních Alergií</h1>
         <p class="subtitle">Aplikace s chytrým vyhledáváním skloňovaných tvarů slov</p>
     </header>
 
@@ -251,7 +251,6 @@
 </div>
 
 <script>
-    // Přednastavení pacientů se základy slov pro skloňování
     let patients = [
         { id: 1, name: "Pacientka A (BLP strava)", keywords: ["niv", "hermelín", "hermelin", "camembert", "gorgonzol", "plísňov", "plisnov", "sedlčansk"] },
         { id: 2, name: "Pan B (Dieta 9)", keywords: ["celer"] }
@@ -261,7 +260,7 @@
         const container = document.getElementById('patientList');
         container.innerHTML = '';
         if (patients.length === 0) {
-            container.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 10px;">Žádný pacient nepřídán</div>';
+            container.innerHTML = '<div style="color: #94a3b8; text-align: center; padding: 10px;">Žádný pacient nepřidán</div>';
             return;
         }
 
@@ -334,7 +333,6 @@
 
             patients.forEach(p => {
                 p.keywords.forEach(kw => {
-                    // Hledá základ slova i uvnitř jakéhokoliv skloňovaného tvaru
                     if (cleanLine.toLowerCase().includes(kw)) {
                         matches.push({
                             lineNum: index + 1,
@@ -353,7 +351,7 @@
             resultsContent.innerHTML = `
                 <div class="alert-box alert-success">
                     <strong>✅ Vše v pořádku!</strong><br>
-                    V vloženém jídelníčku nebyly nalezeny žádné kolize se sledovanými alergeny pacientů.
+                    Ve vloženém jídelníčku nebyly nalezeny žádné kolize se sledovanými alergeny pacientů.
                 </div>
             `;
         } else {
@@ -365,9 +363,10 @@
             `;
 
             matches.forEach(m => {
-                // Zvýraznění celého slova, které v sobě obsahuje hledaný základ
-                const reg = new RegExp(`(\\b\\w*${m.matchedKeyword}\\w*\\b|${m.matchedKeyword})`, 'gi');
-                const highlightedText = escapeHtml(m.lineText).replace(reg, '<span class="highlight">$1</span>');
+                // Česká písmena pro správné zvýraznění celého skloňovaného slova
+                const cz = "a-zA-ZěščřžýáíéúůďťňĚŠČŘŽÝÁÍÉÚŮĎŤŇ";
+                const reg = new RegExp(`[${cz}]*${m.matchedKeyword}[${cz}]*`, 'gi');
+                const highlightedText = escapeHtml(m.lineText).replace(reg, '<span class="highlight">$&</span>');
 
                 html += `
                     <div class="match-card">
