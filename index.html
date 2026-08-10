@@ -88,7 +88,7 @@
             color: #475569;
         }
 
-        textarea, input, select {
+        textarea, input {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border);
@@ -147,10 +147,6 @@
             margin-bottom: 6px;
             border: 1px solid var(--border);
             font-size: 0.88rem;
-        }
-
-        .patient-item:last-child {
-            margin-bottom: 0;
         }
 
         .btn-del {
@@ -218,7 +214,7 @@
 <div class="container">
     <header>
         <h1>🔍 Kontrola Jídelníčku & Dietních Alergii</h1>
-        <p class="subtitle">Aplikace pro nutriční asistenty – automatické vyhledávání skrytých alergenů v jídelníčku</p>
+        <p class="subtitle">Aplikace s chytrým vyhledáváním skloňovaných tvarů slov</p>
     </header>
 
     <div class="grid">
@@ -227,10 +223,10 @@
             
             <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px dashed var(--border); margin-bottom: 15px;">
                 <label for="pName">Jméno / ID Pacienta:</label>
-                <input type="text" id="pName" placeholder="např. Pacientka Nováková (Pokoje 204)">
+                <input type="text" id="pName" placeholder="např. Pacientka Nováková (Pokoj 204)">
 
-                <label for="pKeywords">Sledovaná slova / Alergeny (oddělené čárkou):</label>
-                <input type="text" id="pKeywords" placeholder="např. niva, hermelín, camembert, plísňov">
+                <label for="pKeywords">Základy slov / Alergeny (oddělené čárkou):</label>
+                <input type="text" id="pKeywords" placeholder="např. niv, hermelín, camembert, plísňov, celer">
 
                 <button class="btn btn-add" onclick="addPatient()">+ Přidat pacienta do seznamu</button>
             </div>
@@ -242,7 +238,7 @@
         <div class="card">
             <h2>📋 Vložení Jídelníčku</h2>
             <label for="menuText">Vložte text týdenního nebo denního jídelníčku:</label>
-            <textarea id="menuText" placeholder="Pondělí&#10;Snídaně: Chléb s máslem a plátkovým sýrem&#10;Oběd: Hovězí vývar s nudlemi, Zapečené těstoviny s Hermelínem&#10;Večeře: Rizoto se zeleninou&#10;&#10;Úterý&#10;Oběd: Kuřecí plátek, Těstovinový salát s nivovým dresinkem"></textarea>
+            <textarea id="menuText" placeholder="Pondělí&#10;Snídaně: Chléb s nivovou pomazánkou&#10;Oběd: Zapečené těstoviny s hermelínem&#10;Večeře: Rizoto se zeleninou"></textarea>
 
             <button class="btn" onclick="checkMenu()">🚀 ZKONTROLOVAT JÍDELNÍČEK</button>
         </div>
@@ -255,9 +251,10 @@
 </div>
 
 <script>
+    // Přednastavení pacientů se základy slov pro skloňování
     let patients = [
-        { id: 1, name: "Pacientka A (BLP strava)", keywords: ["niva", "nivov", "hermelín", "hermelin", "camembert", "gorgonzola", "plísňov", "plisnov", "sedlčanský"] },
-        { id: 2, name: "Pan B (Dieta 9)", keywords: ["celer", "celerov"] }
+        { id: 1, name: "Pacientka A (BLP strava)", keywords: ["niv", "hermelín", "hermelin", "camembert", "gorgonzol", "plísňov", "plisnov", "sedlčansk"] },
+        { id: 2, name: "Pan B (Dieta 9)", keywords: ["celer"] }
     ];
 
     function renderPatients() {
@@ -274,7 +271,7 @@
             div.innerHTML = `
                 <div>
                     <strong>${escapeHtml(p.name)}</strong><br>
-                    <span style="color: #64748b; font-size: 0.8rem;">Hlídat: ${p.keywords.join(', ')}</span>
+                    <span style="color: #64748b; font-size: 0.8rem;">Hlídat základy: ${p.keywords.join(', ')}</span>
                 </div>
                 <button class="btn-del" onclick="removePatient(${p.id})">✕</button>
             `;
@@ -287,7 +284,7 @@
         const kwText = document.getElementById('pKeywords').value.trim();
 
         if (!name || !kwText) {
-            alert('Vyplňte prosím jméno pacienta i sledovaná klíčová slova!');
+            alert('Vyplňte prosím jméno pacienta i sledovaná slova!');
             return;
         }
 
@@ -337,6 +334,7 @@
 
             patients.forEach(p => {
                 p.keywords.forEach(kw => {
+                    // Hledá základ slova i uvnitř jakéhokoliv skloňovaného tvaru
                     if (cleanLine.toLowerCase().includes(kw)) {
                         matches.push({
                             lineNum: index + 1,
@@ -367,14 +365,15 @@
             `;
 
             matches.forEach(m => {
-                const reg = new RegExp(`(${m.matchedKeyword})`, 'gi');
+                // Zvýraznění celého slova, které v sobě obsahuje hledaný základ
+                const reg = new RegExp(`(\\b\\w*${m.matchedKeyword}\\w*\\b|${m.matchedKeyword})`, 'gi');
                 const highlightedText = escapeHtml(m.lineText).replace(reg, '<span class="highlight">$1</span>');
 
                 html += `
                     <div class="match-card">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                             <strong style="color: var(--danger);">👤 ${escapeHtml(m.patientName)}</strong>
-                            <span class="badge">Alergen: ${escapeHtml(m.matchedKeyword)}</span>
+                            <span class="badge">Zachycený základ: ${escapeHtml(m.matchedKeyword)}</span>
                         </div>
                         <div style="font-size: 0.95rem; color: #1e293b;">
                             📍 <strong>Jídlo:</strong> ${highlightedText}
