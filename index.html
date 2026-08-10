@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kontrola Jídelníčku – Alergie & Diety</title>
+    <title>Kontrola Jídelníčku podle Diet</title>
     <style>
         :root {
             --primary: #2c3e50;
@@ -26,7 +26,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
@@ -51,12 +51,12 @@
 
         .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1.2fr;
             gap: 20px;
             margin-bottom: 20px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 850px) {
             .grid {
                 grid-template-columns: 1fr;
             }
@@ -75,9 +75,6 @@
             color: var(--primary);
             margin-top: 0;
             margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         label {
@@ -102,7 +99,9 @@
 
         textarea {
             resize: vertical;
-            height: 170px;
+            height: 250px;
+            font-family: monospace;
+            font-size: 0.85rem;
         }
 
         button.btn {
@@ -136,12 +135,8 @@
             margin-bottom: 12px;
         }
 
-        button.btn-save:hover {
-            background-color: #2563eb;
-        }
-
         .patient-list {
-            max-height: 220px;
+            max-height: 280px;
             overflow-y: auto;
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -230,59 +225,41 @@
 
 <div class="container">
     <header>
-        <h1>🔍 Kontrola Jídelníčku podle Diet</h1>
-        <p class="subtitle">Aplikace s uplatněním uložení paměti pro diety i pacienty</p>
+        <h1>🔍 Hromadná Kontrola Stravovacího Systému</h1>
+        <p class="subtitle">Vložte celou tabulku ze stravovacího systému (všechny diety najednou)</p>
     </header>
 
     <div class="grid">
         <!-- PACIENTI -->
         <div class="card">
-            <h2>👥 Pacienti a jejich diety</h2>
+            <h2>👥 Pacienti a Kód jejich Diety</h2>
             
             <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px dashed var(--border); margin-bottom: 15px;">
-                <label for="pName">Jméno / ID Pacienta:</label>
-                <input type="text" id="pName" placeholder="např. Pacientka Nováková">
+                <label for="pName">Jméno / Pokoj pacienta:</label>
+                <input type="text" id="pName" placeholder="např. Pokoj 204 - Nováková">
 
-                <label for="pDiet">Přiřazená Dieta:</label>
-                <select id="pDiet">
-                    <option value="vse">Všechny diety (Univerzální)</option>
-                    <option value="racionalni">Racionální (D3 / Běžná)</option>
-                    <option value="bezlepkova">Bezlepková (BLP)</option>
-                    <option value="bezmlecna">Bezmléčná / Bezlaktózová</option>
-                    <option value="setrici">Šetřící (D2)</option>
-                    <option value="redukcni">Redukční (D8)</option>
-                    <option value="diabeticka">Diabetická (D9)</option>
-                </select>
+                <label for="pDietCode">Přesný kód diety (ze systému):</label>
+                <input type="text" id="pDietCode" placeholder="např. 3 I, BLP/P, 12/PK, 13S/BLP">
 
-                <label for="pKeywords">Základy slov / Zakázané potravy (oddělené čárkou):</label>
-                <input type="text" id="pKeywords" placeholder="např. niv, hermelín, celer, pšenic">
+                <label for="pKeywords">Základy zakázaných slov / alergeny:</label>
+                <input type="text" id="pKeywords" placeholder="např. plísňov, hermelín, celer, mlék">
 
                 <button class="btn btn-add" onclick="addPatient()">+ Přidat pacienta do seznamu</button>
             </div>
 
-            <label>Seznam aktivně sledovaných pacientů:</label>
+            <label>Sledovaní pacienti:</label>
             <div class="patient-list" id="patientList"></div>
         </div>
 
-        <!-- JÍDELNÍČEK -->
+        <!-- JÍDELNÍČEK TABULKA -->
         <div class="card">
-            <h2>📋 Vložení & Správa Jídelníčku</h2>
+            <h2>📋 Vložení Tabulky Jídelníčků</h2>
             
-            <label for="menuDietCategory">Vyberte dietu:</label>
-            <select id="menuDietCategory" onchange="loadSavedMenu()" style="border: 2px solid #3b82f6; font-weight: bold;">
-                <option value="racionalni">Racionální strava (Běžná / D3)</option>
-                <option value="bezlepkova">Bezlepková dieta (BLP)</option>
-                <option value="bezmlecna">Bezmléčná / Bezlaktózová</option>
-                <option value="setrici">Šetřící dieta (D2)</option>
-                <option value="redukcni">Redukční dieta (D8)</option>
-                <option value="diabeticka">Diabetická dieta (D9)</option>
-            </select>
+            <label for="menuText">Vložte zkopírované řádky z programu (označte celou tabulku a vložte):</label>
+            <textarea id="menuText" placeholder="Příklad zkopírované tabulky:&#10;3 I&#9;Sýr s bílou plísní, máslo porce 2ks, chléb žitno-pšeničný&#10;3 II&#9;Šunka vepřová, máslo rostlinné, chléb&#10;BLP/P&#9;Sýr s bílou plísní, šunka vepřová, chléb bezlepkový V..."></textarea>
 
-            <label for="menuText">Jídelníček pro vybranou dietu:</label>
-            <textarea id="menuText" placeholder="Pondělí&#10;Snídaně: Chléb s nivovou pomazánkou&#10;Oběd: Zapečené těstoviny s hermelínem"></textarea>
-
-            <button class="btn btn-save" onclick="saveCurrentMenu()">💾 Uložit tento jídelníček pro příště</button>
-            <button class="btn" onclick="checkMenu()">🚀 ZKONTROLOVAT JÍDELNÍČEK</button>
+            <button class="btn btn-save" onclick="saveCurrentMenu()">💾 Uložit tabulku jídelníčků do paměti</button>
+            <button class="btn" onclick="checkMenu()">🚀 ZKONTROLOVAT VŠECHNY DIETY</button>
         </div>
     </div>
 
@@ -294,31 +271,18 @@
 </div>
 
 <script>
-    const dietLabels = {
-        vse: "Všechny diety",
-        racionalni: "Racionální",
-        bezlepkova: "Bezlepková",
-        bezmlecna: "Bezmléčná",
-        setrici: "Šetřící",
-        redukcni: "Redukční",
-        diabeticka: "Diabetická"
-    };
-
-    // Výchozí pacienti (pokud ještě v paměti nic není)
+    // Výchozí pacienti s ukázkovými kódy diet z vašeho systému
     const defaultPatients = [
-        { id: 1, name: "Paní Svobodová (Pokoj 102)", diet: "bezlepkova", keywords: ["pšenic", "žit", "ječmen", "hermelín"] },
-        { id: 2, name: "Pan Novák (Pokoj 205)", diet: "setrici", keywords: ["paprik", "klobás", "smažen", "pepř"] },
-        { id: 3, name: "Paní Dvořáková (Pokoj 301)", diet: "bezmlecna", keywords: ["smětan", "sýr", "tvaroh", "mlék", "masl"] }
+        { id: 1, name: "Pacientka A", dietCode: "3 I", keywords: ["plísňov", "hermelín", "camembert"] },
+        { id: 2, name: "Pacient B (BLP)", dietCode: "BLP/P", keywords: ["pšenic", "žit", "ječmen"] },
+        { id: 3, name: "Dítě C (Batole)", dietCode: "12/PK", keywords: ["sýr", "tvaroh", "mlék"] }
     ];
 
-    // Načtení pacientů z paměti
-    let patients = JSON.parse(localStorage.getItem('app_patients')) || defaultPatients;
-    
-    // Načtení uložených jídelníčků z paměti
-    let savedMenus = JSON.parse(localStorage.getItem('app_saved_menus')) || {};
+    let patients = JSON.parse(localStorage.getItem('app_patients_v2')) || defaultPatients;
+    let savedMenuText = localStorage.getItem('app_saved_menu_table') || '';
 
     function savePatientsToStorage() {
-        localStorage.setItem('app_patients', JSON.stringify(patients));
+        localStorage.setItem('app_patients_v2', JSON.stringify(patients));
     }
 
     function renderPatients() {
@@ -335,8 +299,8 @@
             div.innerHTML = `
                 <div>
                     <strong>${escapeHtml(p.name)}</strong> 
-                    <span class="badge badge-diet">${dietLabels[p.diet] || p.diet}</span><br>
-                    <span style="color: #64748b; font-size: 0.8rem;">Hlídat základy: ${p.keywords.join(', ')}</span>
+                    <span class="badge badge-diet">Dieta: ${escapeHtml(p.dietCode)}</span><br>
+                    <span style="color: #64748b; font-size: 0.8rem;">Hlídat: ${p.keywords.join(', ')}</span>
                 </div>
                 <button class="btn-del" onclick="removePatient(${p.id})">✕</button>
             `;
@@ -346,11 +310,11 @@
 
     function addPatient() {
         const name = document.getElementById('pName').value.trim();
-        const diet = document.getElementById('pDiet').value;
+        const dietCode = document.getElementById('pDietCode').value.trim().toUpperCase();
         const kwText = document.getElementById('pKeywords').value.trim();
 
-        if (!name || !kwText) {
-            alert('Vyplňte prosím jméno pacienta i sledovaná slova!');
+        if (!name || !dietCode || !kwText) {
+            alert('Vyplňte prosím jméno pacienta, kód diety i sledovaná slova!');
             return;
         }
 
@@ -359,13 +323,14 @@
         patients.push({
             id: Date.now(),
             name: name,
-            diet: diet,
+            dietCode: dietCode,
             keywords: keywords
         });
 
         savePatientsToStorage();
 
         document.getElementById('pName').value = '';
+        document.getElementById('pDietCode').value = '';
         document.getElementById('pKeywords').value = '';
         renderPatients();
     }
@@ -376,22 +341,10 @@
         renderPatients();
     }
 
-    // Načtení jídelníčku při změně diety v rozevíracím seznamu
-    function loadSavedMenu() {
-        const selectedDiet = document.getElementById('menuDietCategory').value;
-        const menuTextarea = document.getElementById('menuText');
-        menuTextarea.value = savedMenus[selectedDiet] || '';
-    }
-
-    // Uložení aktuálního jídelníčku do paměti
     function saveCurrentMenu() {
-        const selectedDiet = document.getElementById('menuDietCategory').value;
-        const menuText = document.getElementById('menuText').value;
-
-        savedMenus[selectedDiet] = menuText;
-        localStorage.setItem('app_saved_menus', JSON.stringify(savedMenus));
-
-        alert(`✅ Jídelníček pro dietu "${dietLabels[selectedDiet]}" byl úspěšně uložen do paměti!`);
+        const text = document.getElementById('menuText').value;
+        localStorage.setItem('app_saved_menu_table', text);
+        alert('✅ Tabulka jídelníčků byla úspěšně uložena!');
     }
 
     function escapeHtml(text) {
@@ -399,44 +352,58 @@
     }
 
     function checkMenu() {
-        const menuText = document.getElementById('menuText').value.trim();
-        const selectedDiet = document.getElementById('menuDietCategory').value;
+        const rawText = document.getElementById('menuText').value.trim();
         const resultsCard = document.getElementById('resultsCard');
         const resultsContent = document.getElementById('resultsContent');
 
-        if (!menuText) {
-            alert('Vložte prosím text jídelníčku ke kontrole!');
+        if (!rawText) {
+            alert('Vložte prosím zkopírované řádky z tabulky jídelníčků!');
             return;
         }
 
-        const relevantPatients = patients.filter(p => p.diet === 'vse' || p.diet === selectedDiet);
-
-        if (relevantPatients.length === 0) {
-            resultsCard.style.display = 'block';
-            resultsContent.innerHTML = `
-                <div class="alert-box alert-success">
-                    <strong>ℹ️ Žádný pacient k porovnání:</strong><br>
-                    V seznamu nemáte žádného pacienta se zařazením do diety: <strong>${dietLabels[selectedDiet]}</strong>.
-                </div>
-            `;
+        if (patients.length === 0) {
+            alert('Přidejte alespoň jednoho pacienta ke kontrole!');
             return;
         }
 
-        const lines = menuText.split(/\r?\n/);
+        const lines = rawText.split(/\r?\n/);
         let matches = [];
 
-        lines.forEach((line, index) => {
+        lines.forEach((line) => {
             const cleanLine = line.trim();
             if (!cleanLine) return;
 
-            relevantPatients.forEach(p => {
+            // Rozdělení podle tabulátoru nebo více mezer (jak to kopíruje stravovací systém)
+            const parts = cleanLine.split(/\t+/);
+            
+            let lineDietCode = "";
+            let lineFoodText = "";
+
+            if (parts.length >= 2) {
+                lineDietCode = parts[0].trim().toUpperCase();
+                lineFoodText = parts.slice(1).join(" ").trim();
+            } else {
+                // Pokud řádek nemá tabulátor, zkusíme vzít první slovo jako kód diety
+                const firstSpaceIndex = cleanLine.search(/\s/);
+                if (firstSpaceIndex !== -1) {
+                    lineDietCode = cleanLine.substring(0, firstSpaceIndex).trim().toUpperCase();
+                    lineFoodText = cleanLine.substring(firstSpaceIndex).trim();
+                } else {
+                    lineDietCode = cleanLine.toUpperCase();
+                    lineFoodText = cleanLine;
+                }
+            }
+
+            // Najdeme pacienty, kteří mají SHODNÝ kód diety
+            const matchingPatients = patients.filter(p => p.dietCode.toUpperCase() === lineDietCode);
+
+            matchingPatients.forEach(p => {
                 p.keywords.forEach(kw => {
-                    if (cleanLine.toLowerCase().includes(kw)) {
+                    if (lineFoodText.toLowerCase().includes(kw)) {
                         matches.push({
-                            lineNum: index + 1,
-                            lineText: cleanLine,
                             patientName: p.name,
-                            patientDiet: p.diet,
+                            patientDiet: p.dietCode,
+                            foodText: lineFoodText,
                             matchedKeyword: kw
                         });
                     }
@@ -449,34 +416,33 @@
         if (matches.length === 0) {
             resultsContent.innerHTML = `
                 <div class="alert-box alert-success">
-                    <strong>✅ Vše v pořádku pro dietu: ${dietLabels[selectedDiet]}!</strong><br>
-                    V vloženém jídelníčku nebyly nalezeny žádné kolize u pacientů na této dietě (${relevantPatients.length} sledovaných).
+                    <strong>✅ Vše v pořádku!</strong><br>
+                    V vložené tabulce nebyly nalezeny žádné kolize u zadaných pacientů.
                 </div>
             `;
         } else {
             let html = `
                 <div class="alert-box alert-danger">
-                    <strong>⚠️ POZOR! Nalezeno ${matches.length} kolizí pro dietu "${dietLabels[selectedDiet]}"!</strong><br>
-                    Kontrola proběhla u ${relevantPatients.length} pacientů odpovídajících této dietě.
+                    <strong>⚠️ POZOR! Nalezeno ${matches.length} kolizí u pacientů!</strong><br>
                 </div>
             `;
 
             matches.forEach(m => {
                 const cz = "a-zA-ZěščřžýáíéúůďťňĚŠČŘŽÝÁÍÉÚŮĎŤŇ";
                 const reg = new RegExp(`[${cz}]*${m.matchedKeyword}[${cz}]*`, 'gi');
-                const highlightedText = escapeHtml(m.lineText).replace(reg, '<span class="highlight">$&</span>');
+                const highlightedText = escapeHtml(m.foodText).replace(reg, '<span class="highlight">$&</span>');
 
                 html += `
                     <div class="match-card">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                             <strong style="color: var(--danger);">👤 ${escapeHtml(m.patientName)}</strong>
                             <div>
-                                <span class="badge badge-diet">${dietLabels[m.patientDiet] || m.patientDiet}</span>
-                                <span class="badge">Základ: ${escapeHtml(m.matchedKeyword)}</span>
+                                <span class="badge badge-diet">Dieta: ${escapeHtml(m.patientDiet)}</span>
+                                <span class="badge">Alergen: ${escapeHtml(m.matchedKeyword)}</span>
                             </div>
                         </div>
                         <div style="font-size: 0.95rem; color: #1e293b;">
-                            📍 <strong>Rizikové jídlo:</strong> ${highlightedText}
+                            📍 <strong>Jídlo v systému:</strong> ${highlightedText}
                         </div>
                     </div>
                 `;
@@ -488,9 +454,11 @@
         resultsCard.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Inicializace při prvním načtení
+    // Načtení uložených dat při startu
     renderPatients();
-    loadSavedMenu();
+    if (savedMenuText) {
+        document.getElementById('menuText').value = savedMenuText;
+    }
 </script>
 
 </body>
