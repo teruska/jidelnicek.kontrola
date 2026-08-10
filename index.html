@@ -162,7 +162,6 @@
             font-size: 1rem;
         }
 
-        /* Results styling */
         .results-card {
             margin-top: 20px;
         }
@@ -194,15 +193,6 @@
             color: #854d0e;
         }
 
-        .day-title {
-            font-weight: bold;
-            font-size: 1rem;
-            color: var(--primary);
-            margin-top: 15px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 4px;
-        }
-
         .match-card {
             background: #fff;
             border-left: 4px solid var(--danger);
@@ -232,7 +222,6 @@
     </header>
 
     <div class="grid">
-        <!-- LEVÝ PANEL: Pacienti a Alergie -->
         <div class="card">
             <h2>👥 Pacienti a sledované alergie</h2>
             
@@ -247,12 +236,9 @@
             </div>
 
             <label>Seznam aktivně sledovaných pacientů:</label>
-            <div class="patient-list" id="patientList">
-                <!-- Dynamicky vkládáno -->
-            </div>
+            <div class="patient-list" id="patientList"></div>
         </div>
 
-        <!-- PRAVÝ PANEL: Jídelníček -->
         <div class="card">
             <h2>📋 Vložení Jídelníčku</h2>
             <label for="menuText">Vložte text týdenního nebo denního jídelníčku:</label>
@@ -262,7 +248,6 @@
         </div>
     </div>
 
-    <!-- VÝSLEDKY KONTROLY -->
     <div class="card results-card" id="resultsCard" style="display: none;">
         <h2>📊 Výsledky Kontroly</h2>
         <div id="resultsContent"></div>
@@ -270,7 +255,6 @@
 </div>
 
 <script>
-    // Výchozí příklad pacientů
     let patients = [
         { id: 1, name: "Pacientka A (BLP strava)", keywords: ["niva", "nivov", "hermelín", "hermelin", "camembert", "gorgonzola", "plísňov", "plisnov", "sedlčanský"] },
         { id: 2, name: "Pan B (Dieta 9)", keywords: ["celer", "celerov"] }
@@ -344,8 +328,7 @@
             return;
         }
 
-        const lines = menuText.split('
-');
+        const lines = menuText.split(/\r?\n/);
         let matches = [];
 
         lines.forEach((line, index) => {
@@ -384,7 +367,6 @@
             `;
 
             matches.forEach(m => {
-                // Zvýraznění slova v textu
                 const reg = new RegExp(`(${m.matchedKeyword})`, 'gi');
                 const highlightedText = escapeHtml(m.lineText).replace(reg, '<span class="highlight">$1</span>');
 
@@ -395,7 +377,7 @@
                             <span class="badge">Alergen: ${escapeHtml(m.matchedKeyword)}</span>
                         </div>
                         <div style="font-size: 0.95rem; color: #1e293b;">
-                            📍 <strong>Řádek/Jídlo:</strong> ${highlightedText}
+                            📍 <strong>Jídlo:</strong> ${highlightedText}
                         </div>
                     </div>
                 `;
@@ -407,7 +389,6 @@
         resultsCard.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Inicializace
     renderPatients();
 </script>
 
