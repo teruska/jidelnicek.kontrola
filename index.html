@@ -102,7 +102,7 @@
 
         textarea {
             resize: vertical;
-            height: 180px;
+            height: 170px;
         }
 
         button.btn {
@@ -127,6 +127,17 @@
             padding: 8px 12px;
             font-size: 0.85rem;
             margin-bottom: 15px;
+        }
+
+        button.btn-save {
+            background-color: #3b82f6;
+            padding: 8px 12px;
+            font-size: 0.88rem;
+            margin-bottom: 12px;
+        }
+
+        button.btn-save:hover {
+            background-color: #2563eb;
         }
 
         .patient-list {
@@ -220,7 +231,7 @@
 <div class="container">
     <header>
         <h1>🔍 Kontrola Jídelníčku podle Diet</h1>
-        <p class="subtitle">Aplikace s filtrováním podle typu diety a skloňovaných tvarů</p>
+        <p class="subtitle">Aplikace s uplatněním uložení paměti pro diety i pacienty</p>
     </header>
 
     <div class="grid">
@@ -255,10 +266,10 @@
 
         <!-- JÍDELNÍČEK -->
         <div class="card">
-            <h2>📋 Vložení Jídelníčku</h2>
+            <h2>📋 Vložení & Správa Jídelníčku</h2>
             
-            <label for="menuDietCategory">Pro jakou dietu je tento jídelníček určen?</label>
-            <select id="menuDietCategory" style="border: 2px solid var(--accent); font-weight: bold;">
+            <label for="menuDietCategory">Vyberte dietu:</label>
+            <select id="menuDietCategory" onchange="loadSavedMenu()" style="border: 2px solid #3b82f6; font-weight: bold;">
                 <option value="racionalni">Racionální strava (Běžná / D3)</option>
                 <option value="bezlepkova">Bezlepková dieta (BLP)</option>
                 <option value="bezmlecna">Bezmléčná / Bezlaktózová</option>
@@ -267,9 +278,10 @@
                 <option value="diabeticka">Diabetická dieta (D9)</option>
             </select>
 
-            <label for="menuText">Vložte text jídelníčku pro zvolenou dietu:</label>
-            <textarea id="menuText" placeholder="Pondělí&#10;Snídaně: Chléb s nivovou pomazánkou&#10;Oběd: Zapečené těstoviny s hermelínem&#10;Večeře: Rizoto se zeleninou"></textarea>
+            <label for="menuText">Jídelníček pro vybranou dietu:</label>
+            <textarea id="menuText" placeholder="Pondělí&#10;Snídaně: Chléb s nivovou pomazánkou&#10;Oběd: Zapečené těstoviny s hermelínem"></textarea>
 
+            <button class="btn btn-save" onclick="saveCurrentMenu()">💾 Uložit tento jídelníček pro příště</button>
             <button class="btn" onclick="checkMenu()">🚀 ZKONTROLOVAT JÍDELNÍČEK</button>
         </div>
     </div>
@@ -282,13 +294,6 @@
 </div>
 
 <script>
-    // Přednastavený ukázkový seznam pacientů
-    let patients = [
-        { id: 1, name: "Paní Svobodová (Pokoj 102)", diet: "bezlepkova", keywords: ["pšenic", "žit", "ječmen", "hermelín"] },
-        { id: 2, name: "Pan Novák (Pokoj 205)", diet: "setrici", keywords: ["paprik", "klobás", "smažen", "pepř"] },
-        { id: 3, name: "Paní Dvořáková (Pokoj 301)", diet: "bezmlecna", keywords: ["smětan", "sýr", "tvaroh", "mlék", "masl"] }
-    ];
-
     const dietLabels = {
         vse: "Všechny diety",
         racionalni: "Racionální",
@@ -298,6 +303,23 @@
         redukcni: "Redukční",
         diabeticka: "Diabetická"
     };
+
+    // Výchozí pacienti (pokud ještě v paměti nic není)
+    const defaultPatients = [
+        { id: 1, name: "Paní Svobodová (Pokoj 102)", diet: "bezlepkova", keywords: ["pšenic", "žit", "ječmen", "hermelín"] },
+        { id: 2, name: "Pan Novák (Pokoj 205)", diet: "setrici", keywords: ["paprik", "klobás", "smažen", "pepř"] },
+        { id: 3, name: "Paní Dvořáková (Pokoj 301)", diet: "bezmlecna", keywords: ["smětan", "sýr", "tvaroh", "mlék", "masl"] }
+    ];
+
+    // Načtení pacientů z paměti
+    let patients = JSON.parse(localStorage.getItem('app_patients')) || defaultPatients;
+    
+    // Načtení uložených jídelníčků z paměti
+    let savedMenus = JSON.parse(localStorage.getItem('app_saved_menus')) || {};
+
+    function savePatientsToStorage() {
+        localStorage.setItem('app_patients', JSON.stringify(patients));
+    }
 
     function renderPatients() {
         const container = document.getElementById('patientList');
@@ -341,6 +363,8 @@
             keywords: keywords
         });
 
+        savePatientsToStorage();
+
         document.getElementById('pName').value = '';
         document.getElementById('pKeywords').value = '';
         renderPatients();
@@ -348,7 +372,26 @@
 
     function removePatient(id) {
         patients = patients.filter(p => p.id !== id);
+        savePatientsToStorage();
         renderPatients();
+    }
+
+    // Načtení jídelníčku při změně diety v rozevíracím seznamu
+    function loadSavedMenu() {
+        const selectedDiet = document.getElementById('menuDietCategory').value;
+        const menuTextarea = document.getElementById('menuText');
+        menuTextarea.value = savedMenus[selectedDiet] || '';
+    }
+
+    // Uložení aktuálního jídelníčku do paměti
+    function saveCurrentMenu() {
+        const selectedDiet = document.getElementById('menuDietCategory').value;
+        const menuText = document.getElementById('menuText').value;
+
+        savedMenus[selectedDiet] = menuText;
+        localStorage.setItem('app_saved_menus', JSON.stringify(savedMenus));
+
+        alert(`✅ Jídelníček pro dietu "${dietLabels[selectedDiet]}" byl úspěšně uložen do paměti!`);
     }
 
     function escapeHtml(text) {
@@ -366,7 +409,6 @@
             return;
         }
 
-        // Filtrujeme pouze pacienty, kteří mají buď danou dietu, nebo "Všechny"
         const relevantPatients = patients.filter(p => p.diet === 'vse' || p.diet === selectedDiet);
 
         if (relevantPatients.length === 0) {
@@ -446,7 +488,9 @@
         resultsCard.scrollIntoView({ behavior: 'smooth' });
     }
 
+    // Inicializace při prvním načtení
     renderPatients();
+    loadSavedMenu();
 </script>
 
 </body>
